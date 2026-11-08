@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>HateGuard - Detection</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+<nav class="navbar">
+
+    <div class="logo">
+        HateGuard
+    </div>
+
+    <div class="nav-links">
+
+        <span>
+            Welcome, {{ session["username"] }}
+        </span>
+
+        {% if session["role"] == "moderator" %}
+
+            <a href="{{ url_for('moderator') }}">
+                Moderator
+            </a>
+
+            <a href="{{ url_for('analytics') }}">
+                Analytics
+            </a>
+
+        {% endif %}
+
+        <a href="{{ url_for('logout') }}">
+            Logout
+        </a>
+
+    </div>
+
+</nav>
+
+
+<div class="container">
+
+    <div class="hero">
+
+        <h1>Hate Speech Detection</h1>
+
+        <p>
+            Enter a comment and HateGuard will
+            automatically analyze it using Machine Learning.
+        </p>
+
+    </div>
+
+
+    {% with messages = get_flashed_messages(
+        with_categories=true
+    ) %}
+
+        {% for category, message in messages %}
+
+            <div class="alert {{ category }}">
+                {{ message }}
+            </div>
+
+        {% endfor %}
+
+    {% endwith %}
+
+
+    <div class="card">
+
+        <h2>Analyze Content</h2>
+
+        <form method="POST"
+              action="{{ url_for('predict') }}">
+
+            <label>
+                Enter your text
+            </label>
+
+            <textarea
+                name="text"
+                rows="8"
+                placeholder="Enter a comment here..."
+                required></textarea>
+
+
+            <button type="submit"
+                    class="primary-btn">
+
+                Detect Hate Speech
+
+            </button>
+
+        </form>
+
+    </div>
+
+
+    <div class="info-grid">
+
+        <div class="info-card">
+
+            <h3>🤖 AI Detection</h3>
+
+            <p>
+                Uses NLP and Machine Learning
+                to analyze text.
+            </p>
+
+        </div>
+
+
+        <div class="info-card">
+
+            <h3>🛡️ Moderation</h3>
+
+            <p>
+                Suspicious content is flagged
+                for moderator review.
+            </p>
+
+        </div>
+
+
+        <div class="info-card">
+
+            <h3>📊 Analytics</h3>
+
+            <p>
+                Monitor hate speech detection
+                statistics.
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

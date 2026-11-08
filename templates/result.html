@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Detection Result - HateGuard</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+
+<body>
+
+    <!-- ================================
+         NAVBAR
+    ================================= -->
+
+    <nav class="navbar">
+
+        <div class="logo">
+            HateGuard
+        </div>
+
+
+        <div class="nav-links">
+
+            <a href="{{ url_for('home') }}">
+                Home
+            </a>
+
+            {% if session.get("role") == "moderator" %}
+
+                <a href="{{ url_for('moderator') }}">
+                    Moderator
+                </a>
+
+                <a href="{{ url_for('analytics') }}">
+                    Analytics
+                </a>
+
+            {% endif %}
+
+            <a href="{{ url_for('logout') }}">
+                Logout
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <!-- ================================
+         MAIN CONTAINER
+    ================================= -->
+
+    <div class="container">
+
+        <div class="result-card">
+
+            <h1>Detection Result</h1>
+
+
+            <!-- ================================
+                 USER INPUT
+            ================================= -->
+
+            <div class="input-text">
+
+                <h3>Submitted Content</h3>
+
+                <p>
+                    {{ text }}
+                </p>
+
+            </div>
+
+
+            <!-- ================================
+                 RESULT
+            ================================= -->
+
+            {% if result == "Hate Speech" %}
+
+                <div class="result hate">
+
+                    <div class="result-icon">
+                        ⚠️
+                    </div>
+
+                    <h2>
+                        Hate Speech Detected
+                    </h2>
+
+                    <p>
+                        This content has been flagged
+                        for moderator review.
+                    </p>
+
+                </div>
+
+            {% else %}
+
+                <div class="result safe">
+
+                    <div class="result-icon">
+                        ✓
+                    </div>
+
+                    <h2>
+                        No Hate Speech Detected
+                    </h2>
+
+                    <p>
+                        The content appears to be safe.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+
+            <!-- ================================
+                 CONFIDENCE
+            ================================= -->
+
+            <div class="confidence">
+
+                <h3>
+                    Model Confidence
+                </h3>
+
+
+                <!--
+                    Store Jinja value in data attribute.
+                    This avoids CSS/Jinja syntax errors.
+                -->
+
+                <div id="confidenceData"
+                     data-confidence="{{ confidence }}">
+
+                </div>
+
+
+                <div class="progress">
+
+                    <div id="confidenceBar"
+                         class="progress-bar">
+
+                    </div>
+
+                </div>
+
+
+                <p id="confidenceText">
+                    {{ confidence }}%
+                </p>
+
+            </div>
+
+
+            <!-- ================================
+                 BUTTON
+            ================================= -->
+
+            <a href="{{ url_for('home') }}"
+               class="button-link">
+
+                Analyze Another Message
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================
+         JAVASCRIPT
+    ================================= -->
+
+    <script>
+
+        // Get confidence value
+        const confidenceData =
+            document.getElementById(
+                "confidenceData"
+            );
+
+
+        // Convert Jinja value into JavaScript number
+        const confidence =
+            Number(
+                confidenceData.dataset.confidence
+            );
+
+
+        // Get progress bar
+        const confidenceBar =
+            document.getElementById(
+                "confidenceBar"
+            );
+
+
+        // Set progress bar width
+        confidenceBar.style.width =
+            confidence + "%";
+
+
+        // Display confidence
+        const confidenceText =
+            document.getElementById(
+                "confidenceText"
+            );
+
+
+        confidenceText.textContent =
+            confidence.toFixed(2) + "%";
+
+    </script>
+
+
+</body>
+
+</html>

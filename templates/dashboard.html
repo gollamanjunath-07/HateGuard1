@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>HateGuard - AI Dashboard</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     NAVBAR
+====================================================== -->
+
+<nav class="navbar">
+
+    <div class="logo">
+        🛡️ HateGuard
+    </div>
+
+
+    <div class="nav-links">
+
+        <a href="{{ url_for('dashboard') }}">
+            Dashboard
+        </a>
+
+        <a href="{{ url_for('analytics') }}">
+            Analytics
+        </a>
+
+        <a href="{{ url_for('history') }}">
+            History
+        </a>
+
+        <a href="{{ url_for('logout') }}">
+            Logout
+        </a>
+
+    </div>
+
+</nav>
+
+
+
+<!-- =====================================================
+     MAIN CONTAINER
+====================================================== -->
+
+<div class="container dashboard">
+
+
+    <!-- =================================================
+         HEADER
+    ================================================== -->
+
+    <div class="hero">
+
+        <h1>
+            🛡️ HateGuard Dashboard
+        </h1>
+
+        <p>
+            Welcome, <strong>{{ username }}</strong>
+        </p>
+
+        <p>
+            hate speech detection and content moderation
+        </p>
+
+    </div>
+
+
+
+    <!-- =================================================
+         STATISTICS
+    ================================================== -->
+
+    <div class="stats-grid">
+
+
+        <!-- TOTAL -->
+
+        <div class="stat-card">
+
+            <h3>
+                Total Analyses
+            </h3>
+
+            <div class="stat-number">
+                {{ total }}
+            </div>
+
+        </div>
+
+
+        <!-- HATE -->
+
+        <div class="stat-card danger-card">
+
+            <h3>
+                Hate Speech
+            </h3>
+
+            <div class="stat-number">
+                {{ hate_count }}
+            </div>
+
+        </div>
+
+
+        <!-- SAFE -->
+
+        <div class="stat-card safe-card">
+
+            <h3>
+                Safe Content
+            </h3>
+
+            <div class="stat-number">
+                {{ safe_count }}
+            </div>
+
+        </div>
+
+
+        <!-- OFFENSIVE -->
+
+        <div class="stat-card">
+
+            <h3>
+                Offensive
+            </h3>
+
+            <div class="stat-number">
+                {{ offensive_count }}
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =================================================
+         ANALYSIS CARD
+    ================================================== -->
+
+    <div class="card">
+
+        <h2>
+            🔍 Analyze Text
+        </h2>
+
+        <p style="color:#94a3b8; margin-bottom:20px;">
+
+            Enter a sentence or message below and HateGuard
+            will classify it using the trained machine learning model.
+
+        </p>
+
+
+        <form method="POST"
+              action="{{ url_for('predict') }}">
+
+
+            <label for="text">
+
+                Enter Text
+
+            </label>
+
+
+            <textarea
+                id="text"
+                name="text"
+                rows="7"
+                placeholder="Enter text to analyze..."
+                required></textarea>
+
+
+            <button
+                type="submit"
+                class="primary-btn">
+
+                🔎 Analyze Text
+
+            </button>
+
+        </form>
+
+    </div>
+
+
+    <!-- =================================================
+         RECENT PREDICTIONS
+    ================================================== -->
+
+    <div class="chart-card"
+         style="margin-top:30px;">
+
+        <h2>
+            📋 Recent Predictions
+        </h2>
+
+
+        {% if recent_predictions %}
+
+
+        <div class="table-container"
+             style="margin-top:20px;">
+
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Text
+                        </th>
+
+                        <th>
+                            Prediction
+                        </th>
+
+                        <th>
+                            Confidence
+                        </th>
+
+                        <th>
+                            Date
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+
+                    {% for item in recent_predictions %}
+
+                    <tr>
+
+
+                        <td class="content-cell">
+
+                            {{ item["text"] }}
+
+                        </td>
+
+
+                        <td>
+
+                            {% if item["prediction"] == "Hate Speech" %}
+
+                                <span class="badge hate-badge">
+                                    🚨 Hate Speech
+                                </span>
+
+                            {% elif item["prediction"] == "Offensive" %}
+
+                                <span class="badge hate-badge">
+                                    ⚠️ Offensive
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge safe-badge">
+                                    ✓ Safe
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td>
+
+                            {{ "%.2f"|format(item["confidence"] or 0) }}%
+
+                        </td>
+
+
+                        <td>
+
+                            {{ item["created_at"] }}
+
+                        </td>
+
+
+                    </tr>
+
+                    {% endfor %}
+
+
+                </tbody>
+
+            </table>
+
+
+        </div>
+
+
+        {% else %}
+
+
+        <div class="empty">
+
+            <h3>
+                📭 No Predictions Yet
+            </h3>
+
+            <p>
+                Analyze some text to see your results here.
+            </p>
+
+        </div>
+
+
+        {% endif %}
+
+
+    </div>
+
+
+</div>
+
+
+</body>
+
+</html>

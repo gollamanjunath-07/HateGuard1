@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>HateGuard | Dashboard</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     NAVBAR
+===================================================== -->
+
+<nav class="navbar">
+
+    <div class="logo">
+        🛡️ HateGuard
+    </div>
+
+
+    <div class="nav-links">
+
+        <a href="{{ url_for('dashboard') }}">
+            🏠 Dashboard
+        </a>
+
+        <a href="{{ url_for('analytics') }}">
+            📊 Analytics
+        </a>
+
+        <a href="{{ url_for('history') }}">
+            📋 History
+        </a>
+
+        <a href="{{ url_for('moderator') }}">
+            🛡️ Moderator
+        </a>
+
+        <a href="{{ url_for('logout') }}">
+            🚪 Logout
+        </a>
+
+    </div>
+
+</nav>
+
+
+
+<!-- =====================================================
+     MAIN
+===================================================== -->
+
+<main class="container dashboard">
+
+
+    <!-- =================================================
+         WELCOME
+    ================================================== -->
+
+    <section class="hero">
+
+        <h1>
+            🛡️ HateGuard AI Dashboard
+        </h1>
+
+        <p>
+            Welcome back,
+            <strong>{{ username }}</strong>
+        </p>
+
+        <p>
+            AI-powered hate speech detection and
+            content moderation system
+        </p>
+
+    </section>
+
+
+
+    <!-- =================================================
+         FLASH MESSAGES
+    ================================================== -->
+
+    {% with messages = get_flashed_messages(
+        with_categories=true
+    ) %}
+
+        {% if messages %}
+
+            {% for category, message in messages %}
+
+                <div class="alert {{ category }}">
+                    {{ message }}
+                </div>
+
+            {% endfor %}
+
+        {% endif %}
+
+    {% endwith %}
+
+
+
+    <!-- =================================================
+         STATISTICS
+    ================================================== -->
+
+    <section class="stats-grid">
+
+
+        <!-- TOTAL -->
+
+        <div class="stat-card">
+
+            <h3>
+                Total Analyses
+            </h3>
+
+            <div class="stat-number">
+                {{ total }}
+            </div>
+
+            <p>
+                All analyzed messages
+            </p>
+
+        </div>
+
+
+
+        <!-- HATE -->
+
+        <div class="stat-card danger-card">
+
+            <h3>
+                Hate Speech
+            </h3>
+
+            <div class="stat-number">
+                {{ hate_count }}
+            </div>
+
+            <p>
+                Harmful content detected
+            </p>
+
+        </div>
+
+
+
+        <!-- SAFE -->
+
+        <div class="stat-card safe-card">
+
+            <h3>
+                Safe Content
+            </h3>
+
+            <div class="stat-number">
+                {{ safe_count }}
+            </div>
+
+            <p>
+                Safe messages detected
+            </p>
+
+        </div>
+
+
+
+        <!-- OFFENSIVE -->
+
+        <div class="stat-card">
+
+            <h3>
+                Offensive Content
+            </h3>
+
+            <div class="stat-number">
+                {{ offensive_count }}
+            </div>
+
+            <p>
+                Offensive messages detected
+            </p>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =================================================
+         ANALYZE TEXT
+    ================================================== -->
+
+    <section class="card">
+
+
+        <h2>
+            🔍 Analyze Text
+        </h2>
+
+
+        <p style="
+            color:#94a3b8;
+            margin-bottom:22px;
+            line-height:1.6;
+        ">
+
+            Enter a message, comment, or sentence below.
+            HateGuard will analyze it using the trained
+            machine learning model.
+
+        </p>
+
+
+        <form method="POST"
+              action="{{ url_for('predict') }}">
+
+
+            <label for="text">
+                Enter Text
+            </label>
+
+
+            <textarea
+                id="text"
+                name="text"
+                rows="7"
+                placeholder="Enter text to analyze..."
+                required></textarea>
+
+
+            <button
+                type="submit"
+                class="primary-btn">
+
+                🔎 Analyze Text
+
+            </button>
+
+        </form>
+
+    </section>
+
+
+
+    <!-- =================================================
+         INFORMATION CARDS
+    ================================================== -->
+
+    <section class="info-grid">
+
+
+        <div class="info-card">
+
+            <h3>
+                🤖 AI Detection
+            </h3>
+
+            <p>
+
+                HateGuard uses machine learning and
+                natural language processing to identify
+                harmful content.
+
+            </p>
+
+        </div>
+
+
+
+        <div class="info-card">
+
+            <h3>
+                🛡️ Content Safety
+            </h3>
+
+            <p>
+
+                Identify hate speech and offensive
+                content quickly for moderation.
+
+            </p>
+
+        </div>
+
+
+
+        <div class="info-card">
+
+            <h3>
+                📊 Analytics
+            </h3>
+
+            <p>
+
+                Monitor prediction statistics,
+                confidence scores and history.
+
+            </p>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =================================================
+         ANALYSIS SUMMARY
+    ================================================== -->
+
+    <section class="chart-grid">
+
+
+        <!-- DISTRIBUTION -->
+
+        <div class="chart-card">
+
+            <h2>
+                📊 Prediction Summary
+            </h2>
+
+
+            <div class="summary-item">
+
+                <span>
+                    🚨 Hate Speech
+                </span>
+
+                <strong>
+                    {{ hate_count }}
+                </strong>
+
+            </div>
+
+
+            <div class="summary-item">
+
+                <span>
+                    ✓ Safe Content
+                </span>
+
+                <strong>
+                    {{ safe_count }}
+                </strong>
+
+            </div>
+
+
+            <div class="summary-item">
+
+                <span>
+                    ⚠️ Offensive
+                </span>
+
+                <strong>
+                    {{ offensive_count }}
+                </strong>
+
+            </div>
+
+
+            <div class="summary-item">
+
+                <span>
+                    📊 Total
+                </span>
+
+                <strong>
+                    {{ total }}
+                </strong>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- SYSTEM STATUS -->
+
+        <div class="chart-card">
+
+            <h2>
+                ⚡ System Status
+            </h2>
+
+
+            <div class="summary-item">
+
+                <span>
+                    Application
+                </span>
+
+                <strong style="color:#4ade80;">
+                    ● Online
+                </strong>
+
+            </div>
+
+
+            <div class="summary-item">
+
+                <span>
+                    AI Model
+                </span>
+
+                <strong style="color:#38bdf8;">
+                    Loaded
+                </strong>
+
+            </div>
+
+
+            <div class="summary-item">
+
+                <span>
+                    Database
+                </span>
+
+                <strong style="color:#4ade80;">
+                    ● Connected
+                </strong>
+
+            </div>
+
+
+            <div class="summary-item">
+
+                <span>
+                    Detection
+                </span>
+
+                <strong style="color:#38bdf8;">
+                    Active
+                </strong>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =================================================
+         RECENT PREDICTIONS
+    ================================================== -->
+
+    <section class="chart-card">
+
+
+        <h2>
+            📋 Recent Predictions
+        </h2>
+
+
+        {% if recent_predictions %}
+
+
+        <div class="table-container">
+
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            ID
+                        </th>
+
+                        <th>
+                            Content
+                        </th>
+
+                        <th>
+                            Prediction
+                        </th>
+
+                        <th>
+                            Confidence
+                        </th>
+
+                        <th>
+                            Date
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+
+                    {% for item in recent_predictions %}
+
+
+                    <tr>
+
+
+                        <td>
+                            #{{ item["id"] }}
+                        </td>
+
+
+                        <td class="content-cell">
+                            {{ item["text"] }}
+                        </td>
+
+
+                        <td>
+
+
+                            {% if item["prediction"] == "Hate Speech" %}
+
+                                <span class="badge hate-badge">
+                                    🚨 Hate Speech
+                                </span>
+
+                            {% elif item["prediction"] == "Offensive" %}
+
+                                <span class="badge hate-badge">
+                                    ⚠️ Offensive
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge safe-badge">
+                                    ✓ Safe
+                                </span>
+
+                            {% endif %}
+
+
+                        </td>
+
+
+                        <td>
+
+                            {{ "%.2f"|format(
+                                item["confidence"] or 0
+                            ) }}%
+
+                        </td>
+
+
+                        <td>
+
+                            {{ item["created_at"] }}
+
+                        </td>
+
+
+                    </tr>
+
+
+                    {% endfor %}
+
+
+                </tbody>
+
+            </table>
+
+
+        </div>
+
+
+        {% else %}
+
+
+        <div class="empty">
+
+            <div style="
+                font-size:45px;
+                margin-bottom:15px;
+            ">
+                📭
+            </div>
+
+            <h3>
+                No Predictions Yet
+            </h3>
+
+            <p>
+                Enter some text above to perform
+                your first HateGuard analysis.
+            </p>
+
+        </div>
+
+
+        {% endif %}
+
+
+    </section>
+
+
+
+    <!-- =================================================
+         QUICK ACTIONS
+    ================================================== -->
+
+    <section class="info-grid">
+
+
+        <div class="info-card">
+
+            <h3>
+                📊 Analytics
+            </h3>
+
+            <p>
+                View detailed prediction statistics.
+            </p>
+
+            <br>
+
+            <a href="{{ url_for('analytics') }}"
+               class="button-link">
+
+                View Analytics
+
+            </a>
+
+        </div>
+
+
+
+        <div class="info-card">
+
+            <h3>
+                📋 History
+            </h3>
+
+            <p>
+                View your previous predictions.
+            </p>
+
+            <br>
+
+            <a href="{{ url_for('history') }}"
+               class="button-link">
+
+                View History
+
+            </a>
+
+        </div>
+
+
+
+        <div class="info-card">
+
+            <h3>
+                🛡️ Moderator
+            </h3>
+
+            <p>
+                Review detected content.
+            </p>
+
+            <br>
+
+            <a href="{{ url_for('moderator') }}"
+               class="button-link">
+
+                Open Moderator
+
+            </a>
+
+        </div>
+
+
+    </section>
+
+
+</main>
+
+
+
+<!-- =====================================================
+     FOOTER
+===================================================== -->
+
+<footer style="
+    text-align:center;
+    padding:30px 20px;
+    margin-top:50px;
+    border-top:1px solid #1e293b;
+    color:#64748b;
+">
+
+    <p>
+
+        🛡️
+
+        <strong style="color:#38bdf8;">
+            HateGuard
+        </strong>
+
+        — AI-Powered Hate Speech Detection
+
+    </p>
+
+    <p style="
+        margin-top:8px;
+        font-size:13px;
+    ">
+
+        Machine Learning • NLP • Content Safety
+
+    </p>
+
+</footer>
+
+
+</body>
+
+</html>

@@ -1,0 +1,173 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>HateGuard - History</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<nav class="navbar">
+
+    <div class="logo">🛡️ HateGuard</div>
+
+    <div class="nav-links">
+
+        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+
+        <a href="{{ url_for('analytics') }}">Analytics</a>
+
+        <a href="{{ url_for('history') }}">History</a>
+
+        <a href="{{ url_for('logout') }}">Logout</a>
+
+    </div>
+
+</nav>
+
+
+<div class="container dashboard">
+
+    <div class="hero">
+
+        <h1>📋 Analysis History</h1>
+
+        <p>Welcome, <strong>{{ username }}</strong></p>
+
+        <p>View your previous hate speech detection results.</p>
+
+    </div>
+
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="alert {{ category }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endwith %}
+
+
+    <div class="card history-card">
+
+        <h2>Previous Analyses</h2>
+
+        {% if predictions %}
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Submitted Text</th>
+                        <th>Prediction</th>
+                        <th>Confidence</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                {% for item in predictions %}
+
+                    <tr>
+
+                        <td>{{ item["id"] }}</td>
+
+                        <td class="content-cell">
+                            {{ item["text"] }}
+                        </td>
+
+                        <td>
+
+                            {% if item["prediction"] == "Hate Speech" %}
+
+                                <span class="badge hate-badge">
+                                    🚨 Hate Speech
+                                </span>
+
+                            {% elif item["prediction"] == "Offensive" %}
+
+                                <span class="badge hate-badge">
+                                    ⚠️ Offensive
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge safe-badge">
+                                    ✓ Safe
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+                            {{ "%.2f"|format(item["confidence"] or 0) }}%
+                        </td>
+
+                        <td>
+                            {{ item["created_at"] }}
+                        </td>
+
+                        <td>
+
+                            <form method="POST"
+                                  action="{{ url_for('delete_prediction',
+                                  prediction_id=item['id']) }}"
+                                  onsubmit="return confirm('Delete this record?');">
+
+                                <button type="submit"
+                                        class="small-btn delete-btn">
+                                    Delete
+                                </button>
+
+                            </form>
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% else %}
+
+            <div class="empty">
+
+                <h2>📭 No History Available</h2>
+
+                <p>You have not analyzed any text yet.</p>
+
+                <br>
+
+                <a href="{{ url_for('dashboard') }}"
+                   class="button-link">
+                    Analyze Text
+                </a>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+</body>
+</html>

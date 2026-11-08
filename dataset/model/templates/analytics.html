@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Analytics - HateGuard</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+<body>
+
+    <!-- ================================
+         NAVBAR
+    ================================= -->
+
+    <nav class="navbar">
+
+        <div class="logo">
+            HateGuard
+        </div>
+
+        <div class="nav-links">
+
+            <a href="{{ url_for('home') }}">
+                Home
+            </a>
+
+            <a href="{{ url_for('moderator') }}">
+                Moderator
+            </a>
+
+            <a href="{{ url_for('logout') }}">
+                Logout
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <!-- ================================
+         MAIN CONTAINER
+    ================================= -->
+
+    <div class="container dashboard">
+
+        <h1>Analytics Dashboard</h1>
+
+        <p>
+            Hate speech detection and moderation statistics
+        </p>
+
+
+        <!-- ================================
+             STATISTICS
+        ================================= -->
+
+        <div class="stats-grid">
+
+            <div class="stat-card">
+
+                <h3>Total Content</h3>
+
+                <div class="stat-number">
+                    {{ total }}
+                </div>
+
+            </div>
+
+
+            <div class="stat-card danger-card">
+
+                <h3>Hate Speech</h3>
+
+                <div class="stat-number">
+                    {{ hate }}
+                </div>
+
+            </div>
+
+
+            <div class="stat-card safe-card">
+
+                <h3>Safe Content</h3>
+
+                <div class="stat-number">
+                    {{ safe }}
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <h3>Hate Percentage</h3>
+
+                <div class="stat-number">
+                    {{ hate_percentage }}%
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================================
+             CHARTS
+        ================================= -->
+
+        <div class="chart-grid">
+
+            <div class="chart-card">
+
+                <h2>Content Classification</h2>
+
+                <canvas id="classificationChart"></canvas>
+
+            </div>
+
+
+            <div class="chart-card">
+
+                <h2>Moderation Status</h2>
+
+                <canvas id="statusChart"></canvas>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================================
+             MODERATION SUMMARY
+        ================================= -->
+
+        <div class="summary-card">
+
+            <h2>Moderation Summary</h2>
+
+            <div class="summary-item">
+
+                <span>Flagged</span>
+
+                <strong>
+                    {{ flagged }}
+                </strong>
+
+            </div>
+
+
+            <div class="summary-item">
+
+                <span>Reviewed</span>
+
+                <strong>
+                    {{ reviewed }}
+                </strong>
+
+            </div>
+
+
+            <div class="summary-item">
+
+                <span>Approved</span>
+
+                <strong>
+                    {{ approved }}
+                </strong>
+
+            </div>
+
+
+            <div class="summary-item">
+
+                <span>Removed</span>
+
+                <strong>
+                    {{ removed }}
+                </strong>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================
+         DATA FOR JAVASCRIPT
+         ========================================= -->
+
+    <div id="analyticsData"
+
+         data-hate="{{ hate }}"
+         data-safe="{{ safe }}"
+         data-flagged="{{ flagged }}"
+         data-reviewed="{{ reviewed }}"
+         data-approved="{{ approved }}"
+         data-removed="{{ removed }}">
+
+    </div>
+
+
+    <!-- =========================================
+         CHART JAVASCRIPT
+         ========================================= -->
+
+    <script>
+
+        // Get analytics data from HTML
+        const analyticsData =
+            document.getElementById("analyticsData");
+
+
+        // Convert values from strings to numbers
+        const hate =
+            Number(analyticsData.dataset.hate);
+
+        const safe =
+            Number(analyticsData.dataset.safe);
+
+        const flagged =
+            Number(analyticsData.dataset.flagged);
+
+        const reviewed =
+            Number(analyticsData.dataset.reviewed);
+
+        const approved =
+            Number(analyticsData.dataset.approved);
+
+        const removed =
+            Number(analyticsData.dataset.removed);
+
+
+        // =========================================
+        // Classification Chart
+        // =========================================
+
+        const classificationCanvas =
+            document.getElementById(
+                "classificationChart"
+            );
+
+
+        new Chart(
+            classificationCanvas,
+            {
+                type: "doughnut",
+
+                data: {
+
+                    labels: [
+                        "Hate Speech",
+                        "Not Hate Speech"
+                    ],
+
+                    datasets: [
+                        {
+                            data: [
+                                hate,
+                                safe
+                            ]
+                        }
+                    ]
+
+                },
+
+                options: {
+
+                    responsive: true,
+
+                    plugins: {
+
+                        legend: {
+                            position: "bottom"
+                        }
+
+                    }
+
+                }
+
+            }
+        );
+
+
+        // =========================================
+        // Moderation Status Chart
+        // =========================================
+
+        const statusCanvas =
+            document.getElementById(
+                "statusChart"
+            );
+
+
+        new Chart(
+            statusCanvas,
+            {
+                type: "bar",
+
+                data: {
+
+                    labels: [
+                        "Flagged",
+                        "Reviewed",
+                        "Approved",
+                        "Removed"
+                    ],
+
+                    datasets: [
+                        {
+                            label: "Content",
+
+                            data: [
+                                flagged,
+                                reviewed,
+                                approved,
+                                removed
+                            ]
+                        }
+                    ]
+
+                },
+
+                options: {
+
+                    responsive: true,
+
+                    scales: {
+
+                        y: {
+
+                            beginAtZero: true,
+
+                            ticks: {
+                                precision: 0
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+        );
+
+    </script>
+
+</body>
+
+</html>
