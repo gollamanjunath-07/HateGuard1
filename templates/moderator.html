@@ -1,0 +1,105 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moderator Dashboard - HateGuard</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+<nav class="navbar">
+    <div class="logo">HateGuard</div>
+    <div class="nav-links">
+        <a href="{{ url_for('home') }}">Home</a>
+        <a href="{{ url_for('moderator') }}">Moderator</a>
+        <a href="{{ url_for('analytics') }}">Analytics</a>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+</nav>
+
+<div class="container dashboard">
+    <h1>Moderator Dashboard</h1>
+    <p>Review and manage detected content.</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="alert {{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
+
+    {% if predictions %}
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>User</th>
+                    <th>Content</th>
+                    <th>Prediction</th>
+                    <th>Confidence</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+            {% for record in predictions %}
+                <tr>
+                    <td>{{ record["id"] }}</td>
+                    <td>{{ record["username"] }}</td>
+                    <td class="content-cell">{{ record["text"] }}</td>
+
+                    <td>
+                        {% if record["prediction"] == "Hate Speech" %}
+                            <span class="badge hate-badge">Hate Speech</span>
+                        {% elif record["prediction"] == "Offensive" %}
+                            <span class="badge hate-badge">Offensive</span>
+                        {% else %}
+                            <span class="badge safe-badge">Safe</span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {{ "%.2f"|format(record["confidence"] or 0) }}%
+                    </td>
+
+                    <td>{{ record["status"] }}</td>
+
+                    <td>
+                        <form method="POST"
+                              action="{{ url_for('update_prediction_status',
+                                                  prediction_id=record['id']) }}">
+
+                            <select name="status" required>
+                                {% for status in
+                                    ["Flagged", "Reviewed", "Approved", "Removed", "Safe"] %}
+                                    <option value="{{ status }}"
+                                        {% if record["status"] == status %}selected{% endif %}>
+                                        {{ status }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+
+                            <button type="submit" class="small-btn">
+                                Update
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% else %}
+        <div class="empty">
+            <h2>No content found</h2>
+            <p>No user predictions have been submitted yet.</p>
+        </div>
+    {% endif %}
+</div>
+</body>
+</html>

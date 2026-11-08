@@ -1,0 +1,37 @@
+<form method="POST" action="{{ url_for('register') }}">
+
+    <label>Username</label>
+    <input
+        type="text"
+        name="username"
+        placeholder="Enter username"
+        required
+    >
+
+    <label>Email</label>
+    <input
+        type="email"
+        name="email"
+        placeholder="Enter email"
+        required
+    >
+
+    <label>Password</label>
+    <input
+        type="password"
+        name="password"
+        placeholder="Enter password"
+        required
+    >
+
+    <label>Confirm Password</label>
+    <input
+        type="password"
+        name="confirm_password"
+        placeholder="Confirm password"
+        required
+    >
+
+    <button type="submit">Create Account</button>
+
+</form>
